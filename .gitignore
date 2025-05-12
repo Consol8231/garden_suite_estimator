@@ -1,0 +1,7 @@
+# Ignore Visual Studio workspace data
+.vs/
+*.opendb
+
+# Streamlit-specific ignore
+.streamlit/secrets.toml
+__pycache__/
