@@ -57,7 +57,7 @@ LEADS_CSV = Path("leads.csv")
 
 # ══════════════  PREMIUM OPTIONS  ══════════════
 PREMIUM_PACKAGES = {
-    "Standard Luxury": {"cost_sqft": 0, "description": "High-quality essentials for a modern, premium living space."},
+    "Standard Luxury - included": {"cost_sqft": 0, "description": "High-quality essentials for a modern, premium living space."},
     "Designer Curated": {"cost_sqft": 20, "description": "Upgraded fixtures, flooring, and cabinetry with designer touches."},
     "Ultimate Bespoke": {"cost_sqft": 40, "description": "Security, smart home features, and exterior detailing."},
 }
@@ -253,36 +253,36 @@ HEADER = [
 if sheet.row_count == 0:
     sheet.append_row(HEADER, value_input_option="RAW")
 
-st.markdown("""
-    <style>
-    div.stButton > button:first-child {
-        background-color: #F8FAF4;
-        color: #4F5C2E;
-        font-weight: bold;
-        border-radius: 6px;
-        padding: 0.5rem 1.25rem;
-    }
-    div.stButton > button:first-child:hover {
-        background-color: #F8FAF4;
-        color: #4F5C2E;
-    }
-    </style>
-""", unsafe_allow_html=True)
+#st.markdown("""
+#    <style>
+#    div.stButton > button:first-child {
+#        background-color: #F8FAF4;
+#        color: #4F5C2E;
+#        font-weight: bold;
+#        border-radius: 6px;
+#        padding: 0.5rem 1.25rem;
+#    }
+#    div.stButton > button:first-child:hover {
+#        background-color: #F8FAF4;
+#        color: #4F5C2E;
+#    }
+#    </style>
+#""", unsafe_allow_html=True)
 
 st.markdown("<div class='card' style='margin-top:1.2rem'>",unsafe_allow_html=True)
 st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 3. Love It</strong></p>", unsafe_allow_html=True)
 #st.markdown(f"<h3 style='text-align:left;margin:0;color:{NAVY_900}'>Step 3. Get Your Custom Detailed Estimate</h3>", unsafe_allow_html=True)
 #st.header("Step 2. Get Your Detailed Quote")
-st.markdown("<p style='text-align: center;'>Save your custom design estimate and let our specialists provide a more detailed consultation.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Your design. Your budget. Our expertise. Let’s bring it all to life — together.</p>", unsafe_allow_html=True)
 with st.form("lead_form",clear_on_submit=True):
     name=st.text_input("Name*",placeholder="Your Name")
     email=st.text_input("Email Address*",placeholder="you@example.com")
     #phone=st.text_input("Phone Number (Optional)", placeholder="(555) 123-4567")
     notes=st.text_area("Specific Questions or Notes (Optional)",height=60, placeholder="e.g., Sloped backyard, lots of trees, need a basement, specific design ideas...")
-    #submitted=st.form_submit_button("📧 Send My Custom Estimate")
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col2:
-        submitted = st.form_submit_button("📧 Send Estimate")
+    submitted=st.form_submit_button("📧 Send My Custom Estimate")
+    #col1, col2, col3 = st.columns([1, 1, 1])
+    #with col2:
+    #    submitted = st.form_submit_button("📧 Send Estimate")
 
     if submitted:
         if not name or not email:
@@ -314,7 +314,7 @@ with st.form("lead_form",clear_on_submit=True):
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("<p style='text-align:center;font-size:.8rem;margin-top:1rem;color:#666'>© 2025 Hawk Property Developments – Prices are preliminary and subject to consultation and site verification. HST not included.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;font-size:.8rem;margin-top:1rem;color:#666'>© 2025 Hawk Property Developments – Prices are preliminary and subject to consultation, final design drawings and site verification. HST not included.</p>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     pass
