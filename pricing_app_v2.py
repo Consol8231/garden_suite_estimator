@@ -169,7 +169,7 @@ with left:
     #st.info(f"Your suite will cover {cover:.1f}% of our total lot")
     st.markdown(
     f"""
-    <div style='text-align: center; font-color: #4F5C2E; font-size:.9rem; background-color: #EFF2E6; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'>
+    <div style='text-align: center; font-color: #4F5C2E; font-size:.9rem; background-color: #F8FAF4; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'>
         Your suite will cover {cover:.1f}% of your total lot<br>
     </div>
     """,
@@ -182,7 +182,7 @@ with left:
         floor_area = int(area / 2)
         st.markdown(
         f"""
-        <div style='text-align: center; font-color: #4F5C2E; font-size:.9rem; background-color: #EFF2E6; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'>
+        <div style='text-align: center; font-color: #4F5C2E; font-size:.9rem; background-color: #F8FAF4; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'>
             Based on {floors} floors, each floor will have<br>roughly {floor_area} sq ft
         </div>
         """,
@@ -235,9 +235,9 @@ with right:
     st.markdown(f"<table class='tbl' style='width:100%;border-collapse:collapse;font-size:.9rem'><thead><tr><th>Category</th><th style='text-align:right'>Estimate</th></tr></thead><tbody>{rows}</tbody></table>", unsafe_allow_html=True)
     st.markdown(
     f"""
-    <div style='text-align: center; font-color: #4F5C2E; background-color: #EFF2E6; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'>
-        <strong>We estimate you will need {mods} modules<br>
-        and your custom building footprint will be roughly {w} ft × {l:.1f} ft</strong>
+    <div style='text-align: center; font-color: #4F5C2E; background-color: #F8FAF4; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'>
+        <strong>We estimate you will need {mods} building<br>
+        modules and your custom building footprint will be roughly {w} ft × {l:.1f} ft</strong>
     </div>
     """,
     unsafe_allow_html=True
@@ -253,6 +253,22 @@ HEADER = [
 if sheet.row_count == 0:
     sheet.append_row(HEADER, value_input_option="RAW")
 
+st.markdown("""
+    <style>
+    div.stButton > button:first-child {
+        background-color: #F8FAF4;
+        color: #4F5C2E;
+        font-weight: bold;
+        border-radius: 6px;
+        padding: 0.5rem 1.25rem;
+    }
+    div.stButton > button:first-child:hover {
+        background-color: #F8FAF4;
+        color: #4F5C2E;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.markdown("<div class='card' style='margin-top:1.2rem'>",unsafe_allow_html=True)
 st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 3. Love It</strong></p>", unsafe_allow_html=True)
 #st.markdown(f"<h3 style='text-align:left;margin:0;color:{NAVY_900}'>Step 3. Get Your Custom Detailed Estimate</h3>", unsafe_allow_html=True)
@@ -263,7 +279,11 @@ with st.form("lead_form",clear_on_submit=True):
     email=st.text_input("Email Address*",placeholder="you@example.com")
     #phone=st.text_input("Phone Number (Optional)", placeholder="(555) 123-4567")
     notes=st.text_area("Specific Questions or Notes (Optional)",height=60, placeholder="e.g., Sloped backyard, lots of trees, need a basement, specific design ideas...")
-    submitted=st.form_submit_button("📧 Send My Custom Estimate")
+    #submitted=st.form_submit_button("📧 Send My Custom Estimate")
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        submitted = st.form_submit_button("📧 Send Estimate")
+
     if submitted:
         if not name or not email:
             st.error("Please provide your Name and Email Address.", icon="🚨")
