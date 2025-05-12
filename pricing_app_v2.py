@@ -128,13 +128,16 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+
 with st.container():
     lcol, rcol = st.columns([15,5])
     with lcol:
         try:
             st.image("hawk_logo.png", width=250)
             st.markdown(" ")
-            st.markdown("<h2 style='margin:0'>GARDEN SUITE ESTIMATOR</h2>", unsafe_allow_html=True)
+            st.image("hero_banner.jpg", width=650)
+            #st.markdown("<h2 style='margin:0'>GARDEN SUITE ESTIMATOR</h2>", unsafe_allow_html=True)
             #st.markdown(" ")
             st.markdown("<h3 style='margin:0'>Design it. Price it. Love it.</h3>", unsafe_allow_html=True)
         except FileNotFoundError:
@@ -142,7 +145,7 @@ with st.container():
     with rcol:
         st.markdown("<p style='margin:.35rem 0 0;opacity:.9'>  </p>", unsafe_allow_html=True)
     st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Experience the future of luxury living, built faster and smarter. Our modular innovations deliver unparalleled precision and exceptional value.</b></p>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Transform and unlock the value of your backyard and get an estimate in minutes.....</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Transform and unlock the value of your backyard - get an estimate in minutes</b></p>", unsafe_allow_html=True)
     #st.caption("Craft your dream backyard oasis and get a preliminary budget in minutes. Final costs exclude HST and are subject to site verification & detailed design.")
     st.markdown(" ")
     st.markdown(" ")
