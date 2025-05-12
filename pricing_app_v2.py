@@ -41,15 +41,15 @@ sheet = gc.open_by_key(st.secrets["gcp_service_account"]["sheet_id"]).worksheet(
 NAVY_900 = "#0C233F"; TEAL_300 = "#5A8EA7"; NAVY_700 = "#123D63"; NAVY_500 = "#1F5A80"
 BG_PAGE = "#F6F8FA"; CARD_BG = "#FFFFFF"; FONT = "Inter,Helvetica,Arial,sans-serif"
 
-MARKUP, LOW, HIGH = 0.25, 0.95, 1.05
+MARKUP, LOW, HIGH = 0.30, 0.95, 1.05
 SITE_PREP_RATE = 10; COMPLETE_RATE = 10; CRANE_DAY_COST = 10_000
 MODULE_W = 8; SHIP_MOD, ASM_MOD, DUTY = 8_000, 3_000, 0.06
 FOUND_RATE = {"Concrete Slab": 40, "Helical Piles": 50}; PILE_COST = 1_000
+CSA_CERT = 25000
 SECOND_BATHROOM_COST = 5000
 SECOND_BEDROOM_COST  = 2500
 FIXED = {
     "Permits & Drawings": 14_000,
-    "CSA Certification & QA": 25_000,
     "Utility Connections": 11_000,
     "Landscaping Restoration": 5_000,
 }
@@ -75,7 +75,7 @@ margin = lambda base: (round(base*(1+MARKUP)*LOW), round(base*(1+MARKUP)*HIGH))
 modules = lambda area,f: math.ceil(area/280) + (1 if f==2 else 0)
 footprint = lambda a,m,f: (m*MODULE_W, a/(m*MODULE_W*f))
 
-def build_breakdown(area:int,floors:int,found:str,premium:str,beds:int,baths:int)->Tuple[pd.DataFrame,int,int,int]:
+def build_breakdown(area:int,floors:int,found:str,premium:str,beds:int,baths:int,CSA_CERT:int)->Tuple[pd.DataFrame,int,int,int]:
     mods = modules(area,floors)
     prem_cost = PREMIUM_PACKAGES[premium]["cost_sqft"]
     module_rate = module_rate_by_size(area)
@@ -87,7 +87,7 @@ def build_breakdown(area:int,floors:int,found:str,premium:str,beds:int,baths:int
     m_base = area * module_rate
     p_base = area * prem_cost
     rows += [
-        ("CSA Approved Modular Units",*margin(m_base)),
+        ("CSA Approved Modular Units",*margin(m_base + CSA_CERT)),
         (f"Premium: {premium}",*margin(p_base))
     ]
     if beds==2: rows.append(("Additional Bedroom",*margin(SECOND_BEDROOM_COST)))
@@ -102,7 +102,7 @@ def build_breakdown(area:int,floors:int,found:str,premium:str,beds:int,baths:int
     rows.append(("Crane",*margin(crane_days*CRANE_DAY_COST)))
     rows.append(("Project Completion",*margin(area*COMPLETE_RATE)))
     order=[
-        "Permits & Drawings","Site Prep",f"Foundation ({found})","CSA Approved Modular Units",f"Premium: {premium}","CSA Certification & QA",
+        "Permits & Drawings","Site Prep",f"Foundation ({found})","CSA Approved Modular Units",f"Premium: {premium}",
         "Additional Bedroom" if beds == 2 else None,
         "Additional Bathroom" if bathrooms == 2 else None,
         "Duties & Brokerage Fees",
@@ -145,39 +145,59 @@ with st.container():
     with rcol:
         st.markdown("<p style='margin:.35rem 0 0;opacity:.9'>  </p>", unsafe_allow_html=True)
     st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Experience the future of luxury living, built faster and smarter. Our modular innovations deliver unparalleled precision and exceptional value.</b></p>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Transform and unlock the value of your backyard - get an estimate in minutes</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Transform and unlock the value of your backyard & get an estimate in minutes...</b></p>", unsafe_allow_html=True)
     #st.caption("Craft your dream backyard oasis and get a preliminary budget in minutes. Final costs exclude HST and are subject to site verification & detailed design.")
     st.markdown(" ")
     st.markdown(" ")
 
-left, right = st.columns((1.1, 1), gap="large")
+left, right = st.columns((1, 1), gap="large")
 
 with left:
     #st.markdown(f"<h3 style='text-align:left;margin:0;color:{NAVY_900}'>Step 1. Design It</h3>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:1.8rem;text-align:left;margin:.25rem 0;'><strong>Step 1. Design It</strong></p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 1. Design It</strong></p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:1rem;text-align:center;margin:.25rem 0;'><strong>Select your custom design elements</strong></p>", unsafe_allow_html=True)
+    st.markdown(" ")
     st.markdown(" ")
     #st.markdown("<div class='card'>", unsafe_allow_html=True)
     #st.markdown("<div class='soft-panel'>",unsafe_allow_html=True)
     area = st.slider("📐 Suite Size (ft²)", 350, 1000, 600, 10)
     lot = st.slider("🌳 Your lot Size (ft²)", 3000, 12000, 6000, 25)
     cover = (area / lot) * 100
-    st.info(f"Your suite will cover {cover:.1f}% of our total lot")
+    #st.info(f"Your suite will cover {cover:.1f}% of our total lot")
+    st.markdown(
+    f"""
+    <div style='text-align: center; font-color: #4F5C2E; font-size:.9rem; background-color: #EFF2E6; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'>
+        Your suite will cover {cover:.1f}% of your total lot<br>
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
     if cover > 10:
-        st.warning("Looks like we’re pushing coverage of 10 % - let’s flag this for our zoning team 👍")
+        st.warning("Looks like we’re pushing coverage of >10 % - let’s flag this for our zoning team 👍")
     floors = st.radio("🏠 Floors", [1, 2], horizontal=True)
     if floors == 2:
         floor_area = int(area / 2)
         st.info(f"Based on {floors} floors, each floor will have roughly {floor_area} sq ft.")
-    beds  =st.radio("🛏️ Bedrooms",[1,2],horizontal=True)
-    if beds == 2 and area<450:
-        st.warning(f"For {beds} bedrooms, we recommend a suite area greater than {area} sq ft.")
-    bathrooms = st.radio("🛁 Bathrooms", [1, 2], horizontal=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        beds = st.radio("🛏️ Bedrooms", [1, 2], horizontal=True)
+        if beds == 2 and area < 450:
+            st.warning(f"For {beds} bedrooms, we recommend a suite area greater than {area} sq ft.")
+    with col2:
+        bathrooms = st.radio("🛁 Bathrooms", [1, 2], horizontal=True)
+
+    #beds  =st.radio("🛏️ Bedrooms",[1,2],horizontal=True)
+    #if beds == 2 and area<450:
+    #    st.warning(f"For {beds} bedrooms, we recommend a suite area greater than {area} sq ft.")
+    #bathrooms = st.radio("🛁 Bathrooms", [1, 2], horizontal=True)
     mods = modules(area, floors); w, l = footprint(area, mods, floors)
-    st.info(f"We estimate you will need {mods} modules and your custom building footprint will be roughly {w} ft × {l:.1f} ft ")
+    #st.info(f"We estimate you will need {mods} modules and your custom building footprint will be roughly {w} ft × {l:.1f} ft ")
     #st.info(f"Your approximate building footprint will be {w} ft × {l:.1f} ft")
     foundation = st.radio("🏗️ Foundation", ["Concrete Slab", "Helical Piles"], horizontal=True)
     premium = st.radio("✨ Premium Package", list(PREMIUM_PACKAGES.keys()), index=1)
-    st.caption(PREMIUM_PACKAGES[premium]["description"])
+    #st.caption(PREMIUM_PACKAGES[premium]["description"])
+    st.markdown(f"<p style='font-size:.9rem; color:#444; margin-top: -0.5rem;'><em>{PREMIUM_PACKAGES[premium]['description']}</em></p>", unsafe_allow_html=True)
+
     st.markdown("</div>", unsafe_allow_html=True)
 
 with right:
@@ -187,10 +207,12 @@ with right:
     #st.markdown(" ")
     #st.markdown(" ")
     #st.markdown(" ")
-    df, low, high, mods = build_breakdown(area, floors, foundation, premium, beds, bathrooms)
+    df, low, high, mods = build_breakdown(area, floors, foundation, premium, beds, bathrooms, CSA_CERT)
     mid = (low + high) // 2
     #st.markdown(f"<h3 style='text-align:center;margin:0;color:{NAVY_900}'>Step 2: Price It</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 2. Price It</strong></p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:1rem;text-align:center;margin:.25rem 0;'><strong>Based on your custom design elements</strong></p>", unsafe_allow_html=True)
+    st.markdown(" ")
     st.markdown(f"<p style='font-size:2rem;text-align:center;margin:.25rem 0; color:#FF4B4B'><strong>$ {mid:,}</strong></p>", unsafe_allow_html=True)
     st.markdown(
     f"<p style='text-align:center;font-size:1rem;margin:0 0 .6rem; color:#FF4B4B'><strong>"
@@ -200,6 +222,16 @@ with right:
     #st.markdown(f"<p style='text-align:center;font-size:.85rem;margin:0 0 .6rem'>$ {mid//area:,} $/ft²</p>", unsafe_allow_html=True)
     rows = "".join(f"<tr><td>{r.Category}</td><td style='text-align:right'>${(r.Low + r.High)//2:,}</td></tr>" for r in df.itertuples())
     st.markdown(f"<table class='tbl' style='width:100%;border-collapse:collapse;font-size:.9rem'><thead><tr><th>Category</th><th style='text-align:right'>Estimate</th></tr></thead><tbody>{rows}</tbody></table>", unsafe_allow_html=True)
+    st.markdown(
+    f"""
+    <div style='text-align: center; font-color: #4F5C2E; background-color: #EFF2E6; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'>
+        <strong>We estimate you will need {mods} modules<br>
+        and your custom building footprint will be roughly {w} ft × {l:.1f} ft</strong>
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ══════════════  LEAD FORM  ══════════════
@@ -211,10 +243,10 @@ if sheet.row_count == 0:
     sheet.append_row(HEADER, value_input_option="RAW")
 
 st.markdown("<div class='card' style='margin-top:1.2rem'>",unsafe_allow_html=True)
-st.markdown(f"<p style='font-size:1.8rem;text-align:left;margin:.25rem 0;'><strong>Step 3. Love It</strong></p>", unsafe_allow_html=True)
+st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 3. Love It</strong></p>", unsafe_allow_html=True)
 #st.markdown(f"<h3 style='text-align:left;margin:0;color:{NAVY_900}'>Step 3. Get Your Custom Detailed Estimate</h3>", unsafe_allow_html=True)
 #st.header("Step 2. Get Your Detailed Quote")
-st.markdown("Save your estimate and let our specialists provide a more detailed consultation.")
+st.markdown("<p style='text-align: center;'>Save your custom design estimate and let our specialists provide a more detailed consultation.</p>", unsafe_allow_html=True)
 with st.form("lead_form",clear_on_submit=True):
     name=st.text_input("Name*",placeholder="Your Name")
     email=st.text_input("Email Address*",placeholder="you@example.com")
