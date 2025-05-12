@@ -144,8 +144,8 @@ with st.container():
             st.markdown("<h3>HAWK</h3>", unsafe_allow_html=True)
     with rcol:
         st.markdown("<p style='margin:.35rem 0 0;opacity:.9'>  </p>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Experience the future of luxury living, built faster and smarter. Our modular innovations deliver unparalleled precision and exceptional value.</b></p>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Transform and unlock the value of your backyard & get an estimate in minutes...</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Experience the future of luxury living, built faster and smarter. Our modular innovations deliver unparalleled precision and exceptional value. Transform and unlock the value of your backyard.</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Create our own custom estimate in minutes...</b></p>", unsafe_allow_html=True)
     #st.caption("Craft your dream backyard oasis and get a preliminary budget in minutes. Final costs exclude HST and are subject to site verification & detailed design.")
     st.markdown(" ")
     st.markdown(" ")
@@ -177,7 +177,15 @@ with left:
     floors = st.radio("🏠 Floors", [1, 2], horizontal=True)
     if floors == 2:
         floor_area = int(area / 2)
-        st.info(f"Based on {floors} floors, each floor will have roughly {floor_area} sq ft.")
+        st.markdown(
+        f"""
+        <div style='text-align: center; font-color: #4F5C2E; font-size:.9rem; background-color: #EFF2E6; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'>
+            Based on {floors} floors, each floor will have<br>roughly {floor_area} sq ft
+        </div>
+        """,
+        unsafe_allow_html=True
+        )
+        #st.info(f"Based on {floors} floors, each floor will have roughly {floor_area} sq ft.")
     col1, col2 = st.columns(2)
     with col1:
         beds = st.radio("🛏️ Bedrooms", [1, 2], horizontal=True)
@@ -211,7 +219,7 @@ with right:
     mid = (low + high) // 2
     #st.markdown(f"<h3 style='text-align:center;margin:0;color:{NAVY_900}'>Step 2: Price It</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 2. Price It</strong></p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:1rem;text-align:center;margin:.25rem 0;'><strong>Based on your custom design elements</strong></p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:1rem;text-align:center;margin:.25rem 0;'><strong>Our dynamic estimate tool</strong></p>", unsafe_allow_html=True)
     st.markdown(" ")
     st.markdown(f"<p style='font-size:2rem;text-align:center;margin:.25rem 0; color:#FF4B4B'><strong>$ {mid:,}</strong></p>", unsafe_allow_html=True)
     st.markdown(
