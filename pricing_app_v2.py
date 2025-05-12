@@ -144,8 +144,11 @@ with st.container():
             st.markdown("<h3>HAWK</h3>", unsafe_allow_html=True)
     with rcol:
         st.markdown("<p style='margin:.35rem 0 0;opacity:.9'>  </p>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Experience the future of luxury living, built faster and smarter. Our modular innovations deliver unparalleled precision and exceptional value. Transform and unlock the value of your backyard.</b></p>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Create our own custom estimate in minutes...</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Welcome to the smarter way to build. We merge cutting-edge modular technology with luxury design to create exceptional backyard suites. Experience precision engineering, accelerated construction, and unparalleled quality, tailored perfectly for you.</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Get your personalized suite estimate now. No waiting. No pressure. Just possibilities.</b></p>", unsafe_allow_html=True)
+
+    #st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Experience the future of luxury living, built faster and smarter. Our modular innovations deliver unparalleled precision and exceptional value. Transform and unlock the value of your backyard.</b></p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Create our own custom estimate in minutes...</b></p>", unsafe_allow_html=True)
     #st.caption("Craft your dream backyard oasis and get a preliminary budget in minutes. Final costs exclude HST and are subject to site verification & detailed design.")
     st.markdown(" ")
     st.markdown(" ")
@@ -155,7 +158,7 @@ left, right = st.columns((1, 1), gap="large")
 with left:
     #st.markdown(f"<h3 style='text-align:left;margin:0;color:{NAVY_900}'>Step 1. Design It</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 1. Design It</strong></p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:1rem;text-align:center;margin:.25rem 0;'><strong>Select your custom design elements</strong></p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:1rem;font-color: #4F5C2E; text-align:center;margin:.25rem 0;'><strong>Customize your suite with features that fit your lifestyle</strong></p>", unsafe_allow_html=True)
     st.markdown(" ")
     st.markdown(" ")
     #st.markdown("<div class='card'>", unsafe_allow_html=True)
@@ -219,7 +222,7 @@ with right:
     mid = (low + high) // 2
     #st.markdown(f"<h3 style='text-align:center;margin:0;color:{NAVY_900}'>Step 2: Price It</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 2. Price It</strong></p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:1rem;text-align:center;margin:.25rem 0;'><strong>Our dynamic estimate tool</strong></p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:1rem;font-color: #4F5C2E; text-align:center;margin:.25rem 0;'><strong>See dynamic pricing based on your design — fully transparent and tailored</strong></p>", unsafe_allow_html=True)
     st.markdown(" ")
     st.markdown(f"<p style='font-size:2rem;text-align:center;margin:.25rem 0; color:#FF4B4B'><strong>$ {mid:,}</strong></p>", unsafe_allow_html=True)
     st.markdown(
