@@ -193,14 +193,19 @@ with st.container():
             st.image("hawk_logo.png", width=250)
             st.markdown(" ")
             st.image("hero_banner.jpg", width=650)
+            #st.markdown("<h2 style='margin:0'>GARDEN SUITE ESTIMATOR</h2>", unsafe_allow_html=True)
+            #st.markdown(" ")
             st.markdown("<h3 style='margin:0'>Design it. Price it. Love it.</h3>", unsafe_allow_html=True)
         except FileNotFoundError:
             st.markdown("<h3>HAWK</h3>", unsafe_allow_html=True)
-            st.warning("Logo or hero banner image not found. Please ensure 'hawk_logo.png' and 'hero_banner.jpg' are in the root directory or update paths.")
     with rcol:
         st.markdown("<p style='margin:.35rem 0 0;opacity:.9'>  </p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Welcome to the smarter way to build. We merge cutting-edge modular technology with luxury design to create exceptional backyard suites. Experience precision engineering, accelerated construction, and unparalleled quality, tailored perfectly for you.</b></p>", unsafe_allow_html=True)
-        st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Get your personalized suite estimate now. No waiting. No pressure. Just possibilities.</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Welcome to the smarter way to build. We merge cutting-edge modular technology with luxury design to create exceptional backyard suites. Experience precision engineering, accelerated construction, and unparalleled quality, tailored perfectly for you.</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Get your personalized suite estimate now. No waiting. No pressure. Just possibilities.</b></p>", unsafe_allow_html=True)
+
+    #st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Experience the future of luxury living, built faster and smarter. Our modular innovations deliver unparalleled precision and exceptional value. Transform and unlock the value of your backyard.</b></p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 1.1rem; color: #555; margin-top: 5px;'><b>Create our own custom estimate in minutes...</b></p>", unsafe_allow_html=True)
+    #st.caption("Craft your dream backyard oasis and get a preliminary budget in minutes. Final costs exclude HST and are subject to site verification & detailed design.")
     st.markdown(" ")
     st.markdown(" ")
 
