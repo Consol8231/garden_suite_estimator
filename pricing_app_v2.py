@@ -272,7 +272,12 @@ with right:
     table_html_str += "<thead><tr><th>Category</th><th style='text-align:right'>Estimate</th></tr></thead>"
     table_html_str += "<tbody>"
 
-    table_html_str += "<tr class='section-header-row'><td colspan='2'>Modular Building Costs</td></tr>"
+    #table_html_str += "<tr class='section-header-row'><td colspan='2'>Modular Building Costs</td></tr>"
+    table_html_str += (
+        f"<tr class='section-header-row'>"
+        f"<td colspan='2'>Modular Building Costs for {area_input:,} sq&nbsp;ft</td>"
+        f"</tr>"
+    )
     
     modular_categories_in_df_order = [
         "CSA Approved Modular Units", 
