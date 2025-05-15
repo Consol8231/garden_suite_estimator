@@ -18,23 +18,7 @@ from PIL import Image
 # MODIFICATION START: Re-added Google Sheets imports
 import gspread
 from google.oauth2.service_account import Credentials
-# MODIFICATION END: Re-added Google Sheets imports
 
-# MODIFICATION START: Re-added Google Sheets authorization
-# Ensure your st.secrets are configured correctly for this to work.
-# Example st.secrets.toml structure:
-# [gcp_service_account]
-# type = "service_account"
-# project_id = "your-gcp-project-id"
-# private_key_id = "your-private-key-id"
-# private_key = "-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY\n-----END PRIVATE KEY-----\n"
-# client_email = "your-service-account-email@your-gcp-project-id.iam.gserviceaccount.com"
-# client_id = "your-client-id"
-# auth_uri = "https://accounts.google.com/o/oauth2/auth"
-# token_uri = "https://oauth2.googleapis.com/token"
-# auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"
-# client_x509_cert_url = "https://www.googleapis.com/robot/v1/metadata/x509/your-service-account-email%40your-gcp-project-id.iam.gserviceaccount.com"
-# sheet_id = "your_google_sheet_id" 
 
 try:
     SCOPE = [
@@ -59,7 +43,7 @@ except Exception as e:
 NAVY_900 = "#0C233F"; TEAL_300 = "#5A8EA7"; NAVY_700 = "#123D63"; NAVY_500 = "#1F5A80"
 BG_PAGE = "#F6F8FA"; CARD_BG = "#FFFFFF"; FONT = "Inter,Helvetica,Arial,sans-serif"
 
-MARKUP, LOW, HIGH = 0.30, 0.95, 1.05
+MARKUP, LOW, HIGH = 0.25, 0.95, 1.05
 SITE_PREP_RATE = 10; COMPLETE_RATE = 10; CRANE_DAY_COST = 10_000
 MODULE_W = 8; SHIP_MOD, ASM_MOD, DUTY = 8_000, 3_000, 0.06
 FOUND_RATE = {"Concrete Slab": 40, "Helical Piles": 50}; PILE_COST = 1_000
@@ -134,9 +118,11 @@ def build_breakdown(area:int,floors:int,found:str,premium:str,beds:int,baths:int
     duties_on_materials = DUTY * (m_base + p_base) 
     brokerage_fee = 1000 
     total_duties_brokerage = duties_on_materials + brokerage_fee
-    rows.append(("Duties & Brokerage Fees", *margin(total_duties_brokerage)))
+    rows.append(("Deliver Coordination, Inspection Fees", *margin(total_duties_brokerage)))
+    #rows.append(("Duties & Brokerage Fees", *margin(total_duties_brokerage)))
     
-    rows.append((f"Shipping {mods} modules to site",*margin(mods*SHIP_MOD)))
+    rows.append((f"Transport {mods} modules to site",*margin(mods*SHIP_MOD)))
+    #rows.append((f"Shipping {mods} modules to site",*margin(mods*SHIP_MOD)))
     rows.append((f"Assembly of {mods} modules",*margin(mods*ASM_MOD)))
     
     crane_days = 2 if (mods>5 or floors==2) else 1
@@ -148,8 +134,8 @@ def build_breakdown(area:int,floors:int,found:str,premium:str,beds:int,baths:int
         additional_bedroom_category_name if beds == 2 else None,
         additional_bathroom_category_name if baths == 2 else None, # Use 'baths'
         "Permits & Drawings","Site Prep",f"Foundation ({found})",
-        "Duties & Brokerage Fees",
-        f"Shipping {mods} modules to site","Crane",f"Assembly of {mods} modules",
+        "Deliver Coordination, Inspection Fees",
+        f"Transport {mods} modules to site","Crane",f"Assembly of {mods} modules",
         "Utility Connections","Project Completion","Landscaping Restoration"
     ]
     
@@ -176,8 +162,8 @@ st.markdown(
     .soft-panel{background:#F9FBFC;padding:1rem 1.2rem;border-radius:8px;}
     @media(min-width:768px){.sticky{position:sticky;top:1rem}}
     .tbl thead th{background:#FF7426;color:#fff; text-align:left; padding-left: 8px;}
-    .tbl tbody tr:nth-child(even){background:#EFF2E6;}
-    .tbl tbody tr:nth-child(odd){background:#EFF2E6;} 
+    #.tbl tbody tr:nth-child(even){background:#EFF2E6;}
+    #.tbl tbody tr:nth-child(odd){background:#EFF2E6;} 
     .tbl td {padding-left: 8px; padding-right: 8px;}
     .section-header-row td {font-weight: bold; background-color: #E0E0E0 !important; color: #333; padding-top: 8px; padding-bottom: 8px;}
     .subtotal-row td {font-weight: bold; background-color: #F0F0F0 !important;}
@@ -225,7 +211,7 @@ with left:
         """, unsafe_allow_html=True
     )
     if cover_calc > 10:
-        st.warning("Looks like we’re pushing coverage of >10 % - let’s flag this for our zoning team 👍")
+        st.warning("Looks like we’re pushing coverage of >10 % - let’s flag this for our zoning team")
     
     floors_input = st.radio("🏠 Floors", [1, 2], horizontal=True)
     if floors_input == 2:
@@ -251,20 +237,25 @@ with left:
     st.markdown(f"<p style='font-size:.9rem; color:#444; margin-top: -0.5rem;'><em>{PREMIUM_PACKAGES[premium_input]['description']}</em></p>", unsafe_allow_html=True)
     # Removed potentially unclosed div from here
 
-with right:
+with right: # Assuming 'right' is your Streamlit column
     df_data, low_total, high_total, mods_output_val, modular_low_sub_val, modular_high_sub_val = build_breakdown(
         area_input, floors_input, foundation_input, premium_input, beds_input, bathrooms_input, CSA_CERT
     )
-    mid_total_val = (low_total + high_total) // 2
+    mid_total_val = (low_total + high_total) // 2 # This is your original total, which we will now recalculate for the table
     mid_modular_sub_val = (modular_low_sub_val + modular_high_sub_val) // 2
 
     st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 2. Price It</strong></p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:1rem;font-color: #4F5C2E; text-align:center;margin:.25rem 0;'><strong>See dynamic pricing based on your design — fully transparent and tailored</strong></p>", unsafe_allow_html=True)
+    st.markdown(
+        f"<p style='font-size:1rem;  text-align:center; margin:.25rem 0;'>"
+        f"<strong>Modular Building Estimate</strong></p>",
+        unsafe_allow_html=True
+    )
     st.markdown(" ")
-    st.markdown(f"<p style='font-size:2rem;text-align:center;margin:.25rem 0; color:#FF4B4B'><strong>$ {mid_total_val:,}</strong></p>", unsafe_allow_html=True)
+    # Displaying the modular subtotal prominently
+    st.markdown(f"<p style='font-size:2rem;text-align:center;margin:.25rem 0; color:#FF4B4B'><strong>$ {mid_modular_sub_val:,}</strong></p>", unsafe_allow_html=True)
     st.markdown(
         f"<p style='text-align:center;font-size:1rem;margin:0 0 .6rem; color:#FF4B4B'><strong>"
-        f"$ {mid_total_val//area_input if area_input > 0 else 0:,} $/ft²</p>",
+        f"$ {mid_modular_sub_val//area_input if area_input > 0 else 0:,} $/ft² (Modular Only)</p>", # Clarified this is for modular only
         unsafe_allow_html=True
     )
 
@@ -272,16 +263,15 @@ with right:
     table_html_str += "<thead><tr><th>Category</th><th style='text-align:right'>Estimate</th></tr></thead>"
     table_html_str += "<tbody>"
 
-    #table_html_str += "<tr class='section-header-row'><td colspan='2'>Modular Building Costs</td></tr>"
     table_html_str += (
         f"<tr class='section-header-row'>"
-        f"<td colspan='2'>Modular Building Costs for {area_input:,} sq&nbsp;ft</td>"
+        f"<td colspan='2'>Modular Building Costs for {area_input:,} sq ft</td>"
         f"</tr>"
     )
     
     modular_categories_in_df_order = [
         "CSA Approved Modular Units", 
-        f"Premium: {premium_input}", # Use the input variable
+        f"Premium: {premium_input}",
     ]
     if beds_input == 2: modular_categories_in_df_order.append("Additional Bedroom")
     if bathrooms_input == 2: modular_categories_in_df_order.append("Additional Bathroom")
@@ -296,10 +286,14 @@ with right:
             
     table_html_str += f"<tr class='subtotal-row'><td><strong>Modular Building Subtotal</strong></td><td style='text-align:right'><strong>${mid_modular_sub_val:,}</strong></td></tr>"
 
-    table_html_str += "<tr class='section-header-row'><td colspan='2'>Other Project Costs</td></tr>"
+    table_html_str += "<tr class='section-header-row'><td colspan='2'>Other Project Costs - Full Transparency</td></tr>"
     
     all_df_categories_list = df_data['Category'].tolist()
     other_cost_categories_list = [cat for cat in all_df_categories_list if cat not in modular_categories_in_df_order]
+
+    # --- MODIFICATION START ---
+    other_costs_subtotal_mid = 0 # 1. Initialize variable for other costs subtotal
+    # --- MODIFICATION END ---
 
     for category_name_other in other_cost_categories_list:
         row_data_other = df_data[df_data['Category'] == category_name_other]
@@ -308,30 +302,106 @@ with right:
             r_high_other = row_data_other.iloc[0]['High']
             r_mid_other = (r_low_other + r_high_other) // 2
             table_html_str += f"<tr><td>{category_name_other}</td><td style='text-align:right'>${r_mid_other:,}</td></tr>"
+            # --- MODIFICATION START ---
+            other_costs_subtotal_mid += r_mid_other # 2. Accumulate other costs
+            # --- MODIFICATION END ---
+
+    # --- MODIFICATION START ---
+    # 3. Calculate the Grand Total
+    complete_project_cost_mid = mid_modular_sub_val + other_costs_subtotal_mid
+
+    # 4. Add the Grand Total Row to HTML
+    table_html_str += f"<tr class='subtotal-row' style='border-top: 2px solid #ccc; background-color: #f0f0f0 !important;'>" # Added some emphasis styling
+    table_html_str += f"<td><strong>Complete Project Cost Estimate</strong></td>"
+    table_html_str += f"<td style='text-align:right'><strong>${complete_project_cost_mid:,}</strong></td>"
+    table_html_str += f"</tr>"
+    # --- MODIFICATION END ---
 
     table_html_str += "</tbody></table>"
     st.markdown(table_html_str, unsafe_allow_html=True)
-    
+
+    ## You might want to update the prominent display at the top to show this complete project cost as well, or add another one.
+    ## For example, below the modular building estimate display:
+    #st.markdown("---") # Add a separator
+    #st.markdown(
+    #    f"<p style='font-size:1.5rem;  text-align:center; margin-top:1rem; margin-bottom:0.25rem;'>"
+    #    f"<strong>Total Estimated Project Cost</strong></p>",
+    #    unsafe_allow_html=True
+    #)
+    #st.markdown(f"<p style='font-size:2.2rem;text-align:center;margin:.25rem 0; color:#0D2E6E'><strong>$ {complete_project_cost_mid:,}</strong></p>", unsafe_allow_html=True) # Using a different color
+    #st.markdown(
+    #    f"<p style='text-align:center;font-size:1rem;margin:0 0 .6rem; color:#0D2E6E'><strong>"
+    #    f"$ {complete_project_cost_mid//area_input if area_input > 0 else 0:,} $/ft² (Total Project)</p>",
+    #    unsafe_allow_html=True
+    #)
+
+
+
     st.markdown(
         f""" <div style='text-align: center; font-color: #4F5C2E; background-color: #F8FAF4; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'> <strong>We estimate you will need {mods_output_val} building<br>
-        modules and your custom building footprint will be roughly {w_calc} ft × {l_calc:.1f} ft</strong> </div>
+        modules for your custom project</strong> </div>
         """, unsafe_allow_html=True
     )
+    
+    #st.markdown(
+    #    f""" <div style='text-align: center; font-color: #4F5C2E; background-color: #F8FAF4; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;'> <strong>We estimate you will need {mods_output_val} building<br>
+    #    modules and your custom building footprint will be roughly {w_calc} ft × {l_calc:.1f} ft</strong> </div>
+    #    """, unsafe_allow_html=True
+    #)
     # Removed potentially unclosed div from here
 
-
 # ══════════════  LEAD FORM  ══════════════
-# MODIFICATION START: Re-integrated Google Sheets Lead Saving
+# MODIFICATION START: Updated GSheet Header Order
 GSHEET_HEADER_ORDER = [ # Define the order of columns for Google Sheets
-    "timestamp","name","email","area","floors","modules","foundation",
-    "premium_package","beds","bathrooms","mid_total","notes"
+    "timestamp", "name", "email", "area_sqft", "floors", "modules_count",
+    "foundation_type", "premium_package", "bedrooms_count", "bathrooms_count",
+    "mid_modular_subtotal", # NEW
+    "other_costs_subtotal", # NEW
+    "complete_project_cost_mid", # NEW (replaces old mid_total if it was meant to be this)
+    "notes"
 ]
+# MODIFICATION END
 
 if GSHEETS_ACTIVE:
     try:
-        if google_sheet.row_count == 0: # Check if sheet is empty to add header
+        # --- REVISED HEADER CHECK LOGIC ---
+        sheet_is_truly_empty = (google_sheet.row_count == 0)
+        header_needs_writing = False
+        
+        if sheet_is_truly_empty:
+            header_needs_writing = True
+        else:
+            # Sheet is not empty, so check the existing header
+            try:
+                existing_header_row = google_sheet.row_values(1) # Get the first row
+                if not existing_header_row or existing_header_row != GSHEET_HEADER_ORDER:
+                    # If the first row is empty or doesn't match, flag a warning
+                    # This path means the sheet has content, but not the expected header.
+                    # This is a more critical mismatch than an empty sheet.
+                    st.warning(
+                        "Google Sheet header mismatch or missing. "
+                        "Data might be appended incorrectly or to the wrong sheet. "
+                        "Please ensure the 'Leads' sheet has the correct header columns or is empty."
+                    )
+                    # You might choose to set GSHEETS_ACTIVE = False here if this is a critical error
+                    # For now, we'll let it proceed but with a warning.
+            except gspread.exceptions.APIError as e_api:
+                # This can happen if the sheet exists but has no content at all (e.g. row_count > 0 but row 1 is empty)
+                # or other API issues reading the first row.
+                if "exceeds grid limits" in str(e_api).lower() or "Unable to parse range" in str(e_api):
+                    # This specifically indicates the sheet is likely empty or has no data in row 1
+                    header_needs_writing = True # Treat as empty for header writing purposes
+                else:
+                    st.warning(f"Error checking Google Sheet header: {e_api}. Proceeding with caution.")
+
+
+        if header_needs_writing:
             google_sheet.append_row(GSHEET_HEADER_ORDER, value_input_option="RAW")
-    except Exception as ge: # Catch potential gspread error if sheet doesn't exist or perm issues
+            # st.info("Google Sheet header written successfully.") # Optional: for debugging
+
+        # --- END REVISED HEADER CHECK LOGIC ---
+
+    except Exception as ge: # Catch potential gspread error during header check/write
         st.warning(f"Could not verify or write header to Google Sheet 'Leads'. Error: {ge}")
         GSHEETS_ACTIVE = False # Disable further GSheets attempts if header check fails
 
@@ -341,22 +411,31 @@ st.markdown("<p style='text-align: center;'>Your design. Your budget. Our expert
 with st.form("lead_form",clear_on_submit=True):
     name_form_input = st.text_input("Name*",placeholder="Your Name")
     email_form_input = st.text_input("Email Address*",placeholder="you@example.com")
-    notes_form_input = st.text_area("Specific Questions or Notes (Optional)",height=60, placeholder="e.g., Sloped backyard, lots of trees, need a basement, specific design ideas...")
+    notes_form_input = st.text_area("Specific Questions or Notes (Optional)",height=60, placeholder="e.g., Sloped backyard, any power lines, lots of trees, need a basement, specific design ideas...")
     submitted_form = st.form_submit_button("📧 Send My Custom Estimate")
 
     if submitted_form:
         if not name_form_input or not email_form_input:
             st.error("Please provide your Name and Email Address.", icon="🚨")
         else:
-            # Prepare data as a list in the GSheet header order
+            # --- MODIFICATION START: Explicitly convert numerical values to Python int ---
             lead_data_row_list = [
                 dt.datetime.utcnow().isoformat(timespec="seconds"),
-                name_form_input, email_form_input,
-                area_input, floors_input, mods_output_val, 
-                foundation_input, premium_input,
-                beds_input, bathrooms_input, 
-                mid_total_val, notes_form_input,
+                name_form_input,
+                email_form_input,
+                int(area_input),         # Convert to int
+                int(floors_input),       # Convert to int
+                int(mods_output_val),    # Convert to int
+                foundation_input,
+                premium_input,
+                int(beds_input),         # Convert to int
+                int(bathrooms_input),    # Convert to int
+                int(mid_modular_sub_val),        # Convert to int
+                int(other_costs_subtotal_mid),   # Convert to int
+                int(complete_project_cost_mid),  # Convert to int
+                notes_form_input,
             ]
+            # --- MODIFICATION END ---
             
             gsheet_success = False
             if GSHEETS_ACTIVE:
@@ -376,18 +455,89 @@ with st.form("lead_form",clear_on_submit=True):
                     with LEADS_CSV.open("a", newline="", encoding="utf-8") as f_csv:
                         writer_csv = csv.writer(f_csv)
                         if is_new_csv_file:
-                            writer_csv.writerow(GSHEET_HEADER_ORDER) # Use same header for consistency
+                            writer_csv.writerow(GSHEET_HEADER_ORDER) 
                         writer_csv.writerow(lead_data_row_list)
                     
-                    if GSHEETS_ACTIVE : # Implies GSheets failed, but CSV succeeded
+                    if GSHEETS_ACTIVE : 
                          st.warning(f"Thanks {name_form_input}! We had an issue with our primary system, but your request was saved securely. We'll be in touch!")
-                    else: # GSheets was never active
+                    else: 
                         st.success(f"Thanks {name_form_input}! Your estimate details have been saved locally. Our team will be in touch shortly via {email_form_input}.")
-                    if not gsheet_success : st.balloons() # Show balloons if primary GSheet didn't show them
+                    if not gsheet_success : st.balloons()
 
                 except Exception as e_csv:
                     st.error(f"CRITICAL: Could not save your estimate data. Please contact us directly. Error: {e_csv}")
-# MODIFICATION END: Re-integrated Google Sheets Lead Saving
+
+st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
+## ══════════════  LEAD FORM  ══════════════
+## MODIFICATION START: Re-integrated Google Sheets Lead Saving
+#GSHEET_HEADER_ORDER = [ # Define the order of columns for Google Sheets
+#    "timestamp","name","email","area","floors","modules","foundation",
+#    "premium_package","beds","bathrooms","mid_total","notes"
+#]
+
+#if GSHEETS_ACTIVE:
+#    try:
+#        if google_sheet.row_count == 0: # Check if sheet is empty to add header
+#            google_sheet.append_row(GSHEET_HEADER_ORDER, value_input_option="RAW")
+#    except Exception as ge: # Catch potential gspread error if sheet doesn't exist or perm issues
+#        st.warning(f"Could not verify or write header to Google Sheet 'Leads'. Error: {ge}")
+#        GSHEETS_ACTIVE = False # Disable further GSheets attempts if header check fails
+
+#st.markdown("<div class='card' style='margin-top:1.2rem'>",unsafe_allow_html=True)
+#st.markdown(f"<p style='font-size:1.8rem;text-align:center;margin:.25rem 0;'><strong>Step 3. Love It</strong></p>", unsafe_allow_html=True)
+#st.markdown("<p style='text-align: center;'>Your design. Your budget. Our expertise. Let’s bring it all to life — together.</p>", unsafe_allow_html=True)
+#with st.form("lead_form",clear_on_submit=True):
+#    name_form_input = st.text_input("Name*",placeholder="Your Name")
+#    email_form_input = st.text_input("Email Address*",placeholder="you@example.com")
+#    notes_form_input = st.text_area("Specific Questions or Notes (Optional)",height=60, placeholder="e.g., Sloped backyard, any power lines, lots of trees, need a basement, specific design ideas...")
+#    submitted_form = st.form_submit_button("📧 Send My Custom Estimate")
+
+#    if submitted_form:
+#        if not name_form_input or not email_form_input:
+#            st.error("Please provide your Name and Email Address.", icon="🚨")
+#        else:
+#            # Prepare data as a list in the GSheet header order
+#            lead_data_row_list = [
+#                dt.datetime.utcnow().isoformat(timespec="seconds"),
+#                name_form_input, email_form_input,
+#                area_input, floors_input, mods_output_val, 
+#                foundation_input, premium_input,
+#                beds_input, bathrooms_input, 
+#                mid_total_val, notes_form_input,
+#            ]
+            
+#            gsheet_success = False
+#            if GSHEETS_ACTIVE:
+#                try:
+#                    google_sheet.append_row(lead_data_row_list, value_input_option="USER_ENTERED")
+#                    st.success(f"Thanks {name_form_input}! Your estimate details have been recorded. Our team will be in touch shortly via {email_form_input}.")
+#                    st.balloons()
+#                    gsheet_success = True
+#                except Exception as e_gsheet:
+#                    st.error(f"An error occurred while saving to our primary system. Your data will be saved locally. Error: {e_gsheet}")
+#                    # Fall through to CSV saving
+            
+#            if not gsheet_success: # Save to CSV if GSheets not active or failed
+#                try:
+#                    LEADS_CSV.parent.mkdir(parents=True, exist_ok=True)
+#                    is_new_csv_file = not LEADS_CSV.exists()
+#                    with LEADS_CSV.open("a", newline="", encoding="utf-8") as f_csv:
+#                        writer_csv = csv.writer(f_csv)
+#                        if is_new_csv_file:
+#                            writer_csv.writerow(GSHEET_HEADER_ORDER) # Use same header for consistency
+#                        writer_csv.writerow(lead_data_row_list)
+                    
+#                    if GSHEETS_ACTIVE : # Implies GSheets failed, but CSV succeeded
+#                         st.warning(f"Thanks {name_form_input}! We had an issue with our primary system, but your request was saved securely. We'll be in touch!")
+#                    else: # GSheets was never active
+#                        st.success(f"Thanks {name_form_input}! Your estimate details have been saved locally. Our team will be in touch shortly via {email_form_input}.")
+#                    if not gsheet_success : st.balloons() # Show balloons if primary GSheet didn't show them
+
+#                except Exception as e_csv:
+#                    st.error(f"CRITICAL: Could not save your estimate data. Please contact us directly. Error: {e_csv}")
+## MODIFICATION END: Re-integrated Google Sheets Lead Saving
 
 st.markdown("</div>", unsafe_allow_html=True)
 
