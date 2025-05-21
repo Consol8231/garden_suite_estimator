@@ -301,7 +301,7 @@ with left:
     
     mods_calc_val = modules(area_input, floors_input); w_calc, l_calc = footprint(area_input, mods_calc_val, floors_input)
     
-    foundation_input = st.radio("🏗️ Foundation", ["Concrete Slab", "Helical Piles"], horizontal=True)
+    foundation_input = "Helical Piles"
     #foundation_input = st.radio("🏗️ Foundation", ["Concrete Slab", "Helical Piles"], horizontal=True)
     premium_input = st.radio("✨ Premium Package", list(PREMIUM_PACKAGES.keys()), index=1)
     st.markdown(f"<p style='font-size:.9rem; color:#444; margin-top: -0.5rem;'><em>{PREMIUM_PACKAGES[premium_input]['description']}</em></p>", unsafe_allow_html=True)
