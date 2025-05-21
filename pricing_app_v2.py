@@ -49,7 +49,7 @@ LOW, HIGH = 0.95, 1.05
 
 #MARKUP, LOW, HIGH = 0.25, 0.95, 1.05
 SITE_PREP_RATE = 10; COMPLETE_RATE = 10; CRANE_DAY_COST = 10_000
-MODULE_W = 8; SHIP_MOD, ASM_MOD, DUTY = 8_000, 3_000, 0.07  # made duty 7% vs 6% in case of other fees we are not aware of
+MODULE_W = 8; SHIP_MOD, ASM_MOD, DUTY = 8_000, 5_000, 0.07  # made duty 7% vs 6% in case of other fees we are not aware of
 FOUND_RATE = {"Concrete Slab": 40, "Helical Piles": 50}; PILE_COST = 1_000
 CSA_CERT = 25000
 SECOND_BATHROOM_COST = 5000
@@ -66,7 +66,7 @@ LEADS_CSV = Path("leads.csv") # Local CSV fallback
 PREMIUM_PACKAGES = {
     "Standard Luxury - included": {"cost_sqft": 0, "description": "High-quality essentials for a modern, premium living space."},
     "Designer Curated": {"cost_sqft": 20, "description": "Upgraded fixtures, flooring, and cabinetry with designer touches."},
-    "Ultimate Bespoke": {"cost_sqft": 40, "description": "Security, smart home features, and exterior detailing."},
+    "Ultimate Bespoke": {"cost_sqft": 40, "description": "Upgraded appliances, smart home features, and exterior detailing."},
 }
 
 # ══════════════  HELPERS  ══════════════
@@ -88,6 +88,8 @@ def calculate_margin_with_specific_markup(base_cost: float, specific_markup_rate
 
 modules = lambda area,f: math.ceil(area/280) + (1 if f==2 else 0)
 footprint = lambda a,m,f: (m*MODULE_W, a/(m*MODULE_W*f))
+# ... (Keep all the code above this function, including constants and other helpers, the same as your baseline) ...
+
 # --- MODIFICATION START: Update build_breakdown return signature and logic ---
 def build_breakdown(area:int, floors:int, found:str, premium:str, beds:int, baths:int, csa_certification_cost:int) \
         -> Tuple[pd.DataFrame, int, int, int, int, int, int, int, int]: # Added base cost subtotals to return
@@ -151,27 +153,46 @@ def build_breakdown(area:int, floors:int, found:str, premium:str, beds:int, bath
     low_val, high_val = calculate_margin_with_specific_markup(transport_base_cost, MARKUP_SITE)
     rows.append((f"Transport {mods} modules to site", low_val, high_val, transport_base_cost))
     
-    assembly_base_cost = float(mods*ASM_MOD)
-    low_val, high_val = calculate_margin_with_specific_markup(assembly_base_cost, MARKUP_SITE)
-    rows.append((f"Assembly of {mods} modules", low_val, high_val, assembly_base_cost))
+    # --- MODIFICATION: Combine Assembly and Crane ---
+    # 1. Calculate base costs for assembly and crane individually
+    assembly_individual_base_cost = float(mods*ASM_MOD)
+    crane_individual_base_cost = float((2 if (mods>5 or floors==2) else 1) * CRANE_DAY_COST)
+
+    # 2. Calculate combined base cost
+    combined_assembly_crane_base_cost = assembly_individual_base_cost + crane_individual_base_cost
     
-    crane_base_cost = float((2 if (mods>5 or floors==2) else 1) * CRANE_DAY_COST)
-    low_val, high_val = calculate_margin_with_specific_markup(crane_base_cost, MARKUP_SITE)
-    rows.append(("Crane", low_val, high_val, crane_base_cost))
+    # 3. Define the new combined category name
+    combined_assembly_crane_category_name = f"Crane and Assembly of {mods} modules"
+    
+    # 4. Calculate marked-up range for the combined cost (using MARKUP_SITE as these are site activities)
+    low_val_combined, high_val_combined = calculate_margin_with_specific_markup(combined_assembly_crane_base_cost, MARKUP_SITE)
+    
+    # 5. Add the new combined row
+    rows.append((combined_assembly_crane_category_name, low_val_combined, high_val_combined, combined_assembly_crane_base_cost))
+    # --- END MODIFICATION ---
+    
+    # REMOVE THE OLD INDIVIDUAL APPENDS FOR ASSEMBLY AND CRANE:
+    # # rows.append((f"Assembly of {mods} modules", low_val, high_val, assembly_base_cost)) # This was here before
+    # # rows.append(("Crane", low_val, high_val, crane_base_cost)) # This was here before
     
     project_completion_base_cost = float(area*COMPLETE_RATE)
     low_val, high_val = calculate_margin_with_specific_markup(project_completion_base_cost, MARKUP_SITE)
     rows.append(("Project Completion", low_val, high_val, project_completion_base_cost))
 
+    # --- MODIFICATION: Update the 'order' list ---
     order=[
         category_csa_units, premium_category_name,
         additional_bedroom_category_name if beds == 2 else None,
         additional_bathroom_category_name if baths == 2 else None,
         "Permits & Drawings","Site Prep",f"Foundation ({found})",
         "Deliver Coordination, Inspection Fees",
-        f"Transport {mods} modules to site", f"Assembly of {mods} modules", "Crane",
+        f"Transport {mods} modules to site", 
+        combined_assembly_crane_category_name, # Add the new combined category
+        # f"Assembly of {mods} modules", # Remove old Assembly
+        # "Crane", # Remove old Crane
         "Utility Connections","Project Completion","Landscaping Restoration"
     ]
+    # --- END MODIFICATION ---
     
     # Create DataFrame with BaseCost column
     df=pd.DataFrame(rows,columns=["Category","Low","High","BaseCost"]).set_index("Category")
@@ -281,6 +302,7 @@ with left:
     mods_calc_val = modules(area_input, floors_input); w_calc, l_calc = footprint(area_input, mods_calc_val, floors_input)
     
     foundation_input = st.radio("🏗️ Foundation", ["Concrete Slab", "Helical Piles"], horizontal=True)
+    #foundation_input = st.radio("🏗️ Foundation", ["Concrete Slab", "Helical Piles"], horizontal=True)
     premium_input = st.radio("✨ Premium Package", list(PREMIUM_PACKAGES.keys()), index=1)
     st.markdown(f"<p style='font-size:.9rem; color:#444; margin-top: -0.5rem;'><em>{PREMIUM_PACKAGES[premium_input]['description']}</em></p>", unsafe_allow_html=True)
     # Removed potentially unclosed div from here
